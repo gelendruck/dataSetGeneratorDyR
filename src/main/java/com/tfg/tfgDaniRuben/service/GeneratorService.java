@@ -1,5 +1,6 @@
 package com.tfg.tfgDaniRuben.service;
 
+import com.tfg.tfgDaniRuben.Exceptions.CreateImageErrorException;
 import com.tfg.tfgDaniRuben.Exceptions.ImageOutOfBoundsException;
 import javafx.util.Pair;
 import lombok.Data;
@@ -56,6 +57,8 @@ public class GeneratorService {
             BufferedImage arrow = fileService.loadImage(arrowPath);
             BufferedImage box = fileService.loadImage(boxPath);
             List<BufferedImage> imagesToReturn = new ArrayList<>();
+
+
             for (int i = imageCount; imageCount < i + quantity; imageCount++) {
                 List<BufferedImage> imagesToBackground = new ArrayList<>();
                 BufferedImage background = fileService.loadImage(backgroundPath);
@@ -93,153 +96,135 @@ public class GeneratorService {
         return null;
     }
 
-//    public Pair<List<BufferedImage>, File> generateWrongCases(Integer actors, Integer arrows, Integer boxes, Integer quantity) throws IOException, ImageOutOfBoundsException {
-//
-//        Pair<List<BufferedImage>, File> toReturn;
-//        File labeled = new File(textFilePath);
-//        if (labeled.exists()) {
-//            labeled.delete();
-//        }
-//        labeled.createNewFile();
-//        if (!goodValidation(actors, arrows, boxes)) {
-//            BufferedImage actor = fileService.loadImage(actorPath);
-//            BufferedImage arrow = fileService.loadImage(arrowPath);
-//            BufferedImage box = fileService.loadImage(boxPath);
-//            final BufferedImage background = fileService.loadImage(backgroundPath);
-//            BufferedImage imgDefinitive = background;
-//
-//            int backgroundHeight = background.getHeight();
-//            int backgroundWidth = background.getWidth();
-//            List<BufferedImage> imagesToBackground = new ArrayList<>();
-//            for (int i = imageCount; imageCount < i + quantity; imageCount++) {
-//                for (int j = 0; j < actors; j++) {
-//                    Optional<BufferedImage> actorTrans = typeOfTransformation(backgroundHeight, backgroundWidth, actor);
-//                    if (actorTrans.isPresent()) {
-//                        imagesToBackground.add(actorTrans.get());
-//                    }
-//                }
-//                for (int j = 0; j < arrows; j++) {
-//                    Optional<BufferedImage> arrowTrans = typeOfTransformation(backgroundHeight, backgroundWidth, arrow);
-//                    if (arrowTrans.isPresent()) {
-//                        imagesToBackground.add(arrowTrans.get());
-//                    }
-//                }
-//                for (int j = 0; j < boxes; j++) {
-//                    Optional<BufferedImage> boxTrans = typeOfTransformation(backgroundHeight, backgroundWidth, box);
-//                    if (boxTrans.isPresent()) {
-//                        imagesToBackground.add(boxTrans.get());
-//                    }
-//                }
-//                g2d = background.createGraphics();
-//                for (BufferedImage element : imagesToBackground) {
-//                    g2d.drawImage(element, 0, 0, null);
-//                }
-//                g2d.dispose();
-//                imagesToBackground.add(imgDefinitive);
-//                imgDefinitive = background;
-//                labeledService.registerImageForLabeled("image" + imageCount + ".png", false, labeled);
-//            }
-//            labeled.createNewFile();
-//            toReturn = new Pair<>(imagesToBackground, labeled);
-//            labeled.delete();
-//            return toReturn;
-//        }
-//        return null;
-//    }
-//
-//    public Pair<List<BufferedImage>, File> generateRandomCases(Integer quantity) throws IOException, ImageOutOfBoundsException {
-//
-//        Pair<List<BufferedImage>, File> toReturn;
-//        File labeled = new File(textFilePath);
-//        if (labeled.exists()) {
-//            labeled.delete();
-//        }
-//        labeled.createNewFile();
-//        BufferedImage actor = fileService.loadImage(actorPath);
-//        BufferedImage arrow = fileService.loadImage(arrowPath);
-//        BufferedImage box = fileService.loadImage(boxPath);
-//        final BufferedImage background = fileService.loadImage(backgroundPath);
-//        BufferedImage imgDefinitive = background;
-//
-//        int backgroundHeight = background.getHeight();
-//        int backgroundWidth = background.getWidth();
-//        List<BufferedImage> imagesToBackground = new ArrayList<>();
-//        Integer boxes;
-//        Integer actors;
-//        Integer arrows;
-//        for (int i = imageCount; imageCount < i + quantity; imageCount++) {
-//            actors = new Random().nextInt(10);
-//            arrows = new Random().nextInt(10);
-//            boxes = new Random().nextInt(10);
-//
-//            for (int j = 0; j < actors; j++) {
-//                Optional<BufferedImage> actorTrans = typeOfTransformation(backgroundHeight, backgroundWidth, actor);
-//                if (actorTrans.isPresent()) {
-//                    imagesToBackground.add(actorTrans.get());
-//                }
-//            }
-//            for (int j = 0; j < arrows; j++) {
-//                Optional<BufferedImage> arrowTrans = typeOfTransformation(backgroundHeight, backgroundWidth, arrow);
-//                if (arrowTrans.isPresent()) {
-//                    imagesToBackground.add(arrowTrans.get());
-//                }
-//            }
-//            for (int j = 0; j < boxes; j++) {
-//                Optional<BufferedImage> boxTrans = typeOfTransformation(backgroundHeight, backgroundWidth, box);
-//                if (boxTrans.isPresent()) {
-//                    imagesToBackground.add(boxTrans.get());
-//                }
-//            }
-//            g2d = background.createGraphics();
-//            for (BufferedImage element : imagesToBackground) {
-//                g2d.drawImage(element, 0, 0, null);
-//            }
-//            g2d.dispose();
-//            imagesToBackground.add(imgDefinitive);
-//            imgDefinitive = background;
-//            labeledService.registerImageForLabeled("image" + imageCount + ".png", goodValidation(actors, arrows, boxes), labeled);
-//        }
-//        toReturn = new Pair<>(imagesToBackground, labeled);
-//        labeled.delete();
-//        return toReturn;
-//    }
-//
-//    public Pair<List<BufferedImage>, File> generatePredeterminedCases(Integer quantity, Integer type) throws IOException, ImageOutOfBoundsException, IndexOutOfBoundsException {
-//
-//        if (type < 1 || type > 6) {
-//            throw new IndexOutOfBoundsException();
-//        }
-//        Pair<List<BufferedImage>, File> toReturn;
-//        File labeled = new File(textFilePath);
-//        if (labeled.exists()) {
-//            labeled.delete();
-//        }
-//        labeled.createNewFile();
-//        BufferedImage scenario = fileService.loadImage(scenarioPath + "_" + type + ".png");
-//        final BufferedImage background = fileService.loadImage(backgroundPath);
-//        BufferedImage imgDefinitive = background;
-//
-//        int backgroundHeight = background.getHeight();
-//        int backgroundWidth = background.getWidth();
-//        List<BufferedImage> imagesToBackground = new ArrayList<>();
-//        for (int i = imageCount; imageCount < i + quantity; imageCount++) {
-//            Optional<BufferedImage> scenarioTrans = typeOfTransformation(backgroundHeight, backgroundWidth, scenario);
-//            if (scenarioTrans.isPresent()) {
-//                imagesToBackground.add(scenarioTrans.get());
-//            }
-//            g2d = background.createGraphics();
-//            for (BufferedImage element : imagesToBackground) {
-//                g2d.drawImage(element, 0, 0, null);
-//            }
-//            g2d.dispose();
-//            imagesToBackground.add(imgDefinitive);
-//            imgDefinitive = background;
-//            labeledService.registerImageForLabeled("image" + imageCount + ".png", true, labeled);
-//        }
-//        toReturn = new Pair<>(imagesToBackground, labeled);
-//        labeled.delete();
-//        return toReturn;
-//    }
+    public Pair<List<BufferedImage>, File> generateWrongCases(Integer actors, Integer arrows, Integer boxes, Integer quantity) throws IOException, ImageOutOfBoundsException {
+
+        Pair<List<BufferedImage>, File> toReturn;
+        File labeled = new File(textFilePath);
+        if (labeled.exists()) {
+            boolean delete = labeled.delete();
+        }
+        labeled.createNewFile();
+        if (!goodValidation(actors, arrows, boxes)) {
+            BufferedImage actor = fileService.loadImage(actorPath);
+            BufferedImage arrow = fileService.loadImage(arrowPath);
+            BufferedImage box = fileService.loadImage(boxPath);
+            List<BufferedImage> imagesToReturn = new ArrayList<>();
+            for (int i = imageCount; imageCount < i + quantity; imageCount++) {
+                List<BufferedImage> imagesToBackground = new ArrayList<>();
+                BufferedImage background = fileService.loadImage(backgroundPath);
+                int backgroundHeight = background.getHeight();
+                int backgroundWidth = background.getWidth();
+                for (int j = 0; j < actors; j++) {
+                    Optional<BufferedImage> actorTrans = typeOfTransformation(backgroundHeight, backgroundWidth, actor);
+                    if (actorTrans.isPresent()) {
+                        imagesToBackground.add(actorTrans.get());
+                    }
+                }
+                for (int j = 0; j < arrows; j++) {
+                    Optional<BufferedImage> arrowTrans = typeOfTransformation(backgroundHeight, backgroundWidth, arrow);
+                    if (arrowTrans.isPresent()) {
+                        imagesToBackground.add(arrowTrans.get());
+                    }
+                }
+                for (int j = 0; j < boxes; j++) {
+                    Optional<BufferedImage> boxTrans = typeOfTransformation(backgroundHeight, backgroundWidth, box);
+                    if (boxTrans.isPresent()) {
+                        imagesToBackground.add(boxTrans.get());
+                    }
+                }
+                Graphics2D g2d = background.createGraphics();
+                for (BufferedImage element : imagesToBackground) {
+                    g2d.drawImage(element, 0, 0, null);
+                }
+                g2d.dispose();
+                imagesToReturn.add(background);
+                labeledService.registerImageForLabeled("image" + imageCount + ".png", true, labeled);
+            }
+            toReturn = new Pair<>(imagesToReturn, labeled);
+            return toReturn;
+        }
+        return null;
+    }
+
+    public Pair<List<BufferedImage>, File> generateRandomCases(Integer quantity) throws IOException, ImageOutOfBoundsException {
+
+        Pair<List<BufferedImage>, File> toReturn;
+        File labeled = new File(textFilePath);
+        if (labeled.exists()) {
+            boolean delete = labeled.delete();
+        }
+        labeled.createNewFile();
+        BufferedImage actor = fileService.loadImage(actorPath);
+        BufferedImage arrow = fileService.loadImage(arrowPath);
+        BufferedImage box = fileService.loadImage(boxPath);
+        List<BufferedImage> imagesToReturn = new ArrayList<>();
+        int actors;
+        int arrows;
+        int boxes;
+        for (int i = imageCount; imageCount < i + quantity; imageCount++) {
+            actors = new Random().nextInt(10);
+            arrows = new Random().nextInt(10);
+            boxes = new Random().nextInt(10);
+            List<BufferedImage> imagesToBackground = new ArrayList<>();
+            BufferedImage background = fileService.loadImage(backgroundPath);
+            int backgroundHeight = background.getHeight();
+            int backgroundWidth = background.getWidth();
+            for (int j = 0; j < actors; j++) {
+                Optional<BufferedImage> actorTrans = typeOfTransformation(backgroundHeight, backgroundWidth, actor);
+                if (actorTrans.isPresent()) {
+                    imagesToBackground.add(actorTrans.get());
+                }
+            }
+            for (int j = 0; j < arrows; j++) {
+                Optional<BufferedImage> arrowTrans = typeOfTransformation(backgroundHeight, backgroundWidth, arrow);
+                if (arrowTrans.isPresent()) {
+                    imagesToBackground.add(arrowTrans.get());
+                }
+            }
+            for (int j = 0; j < boxes; j++) {
+                Optional<BufferedImage> boxTrans = typeOfTransformation(backgroundHeight, backgroundWidth, box);
+                if (boxTrans.isPresent()) {
+                    imagesToBackground.add(boxTrans.get());
+                }
+            }
+            Graphics2D g2d = background.createGraphics();
+            for (BufferedImage element : imagesToBackground) {
+                g2d.drawImage(element, 0, 0, null);
+            }
+            g2d.dispose();
+            imagesToReturn.add(background);
+            labeledService.registerImageForLabeled("image" + imageCount + ".png", goodValidation(actors, arrows, boxes), labeled);
+        }
+        toReturn = new Pair<>(imagesToReturn, labeled);
+        return toReturn;
+    }
+
+    public Pair<List<BufferedImage>, File> generatePredeterminedCases(Integer quantity, Integer type) throws IOException, ImageOutOfBoundsException, IndexOutOfBoundsException {
+
+        if (type < 1 || type > 6) {
+            throw new IndexOutOfBoundsException();
+        }
+        Pair<List<BufferedImage>, File> toReturn;
+        File labeled = new File(textFilePath);
+        if (labeled.exists()) {
+            boolean delete = labeled.delete();
+        }
+        labeled.createNewFile();
+        BufferedImage scenario = fileService.loadImage(scenarioPath + "_" + type + ".png");
+        List<BufferedImage> imagesToReturn = new ArrayList<>();
+        for (int i = imageCount; imageCount < i + quantity; imageCount++) {
+            final BufferedImage background = fileService.loadImage(backgroundPath);
+            int backgroundHeight = background.getHeight();
+            int backgroundWidth = background.getWidth();
+            Optional<BufferedImage> scenarioTrans = typeOfTransformation(backgroundHeight, backgroundWidth, scenario);
+            Graphics2D g2d = background.createGraphics();
+            g2d.drawImage(scenarioTrans.get(), 0, 0, null);
+            g2d.dispose();
+            labeledService.registerImageForLabeled("image" + imageCount + ".png", true, labeled);
+        }
+        toReturn = new Pair<>(imagesToReturn, labeled);
+        return toReturn;
+    }
 
     private boolean goodValidation(Integer actors, Integer arrows, Integer boxes) {
         try {

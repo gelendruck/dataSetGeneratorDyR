@@ -42,6 +42,9 @@ public class GeneratorController {
             @RequestParam Integer boxes, @RequestParam Integer quantity) {
         try {
             Pair<List<BufferedImage>, File> listFilePair = generatorService.generateGoodCases(actors, arrows, boxes, quantity);
+            if (listFilePair == null) {
+                return ResponseEntity.badRequest().build();
+            }
             int count = generatorService.getImageCount();
             int totalSize = listFilePair.getKey().size();
             List <File> filesToZip = new ArrayList<>();
@@ -69,77 +72,123 @@ public class GeneratorController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-//
-//    @GetMapping(path = "/wrong", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-//    @ApiResponses({
-//            @ApiResponse(code = 200, message = "generated correctly"),
-//            @ApiResponse(code = 400, message = "Error while generating"),
-//    })
-//    public ResponseEntity<byte[]> generateWrongCases(@RequestParam Integer actors, @RequestParam Integer arrows,
-//            @RequestParam Integer boxes, @RequestParam Integer quantity) {
-//        try {
-//            Pair<List<BufferedImage>, File> listFilePair = generatorService.generateWrongCases(actors, arrows, boxes, quantity);
-//            ByteArrayOutputStream zipToReturn = fileService.zipImages(listFilePair);
-//            if (zipToReturn != null) {
-//                return new ResponseEntity<>(zipToReturn.toByteArray(), HttpStatus.OK);
-//            } else {
-//                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        } catch (ImageOutOfBoundsException e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @GetMapping(path = "/random", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-//    @ApiResponses({
-//            @ApiResponse(code = 200, message = "generated correctly"),
-//            @ApiResponse(code = 400, message = "Error while generating"),
-//    })
-//    public ResponseEntity<byte[]> generateRandomCases(@RequestParam Integer quantity) {
-//        try {
-//            Pair<List<BufferedImage>, File> listFilePair = generatorService.generateRandomCases(quantity);
-//            ByteArrayOutputStream zipToReturn = fileService.zipImages(listFilePair);
-//            if (zipToReturn != null) {
-//                return new ResponseEntity<>(zipToReturn.toByteArray(), HttpStatus.OK);
-//            } else {
-//                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        } catch (ImageOutOfBoundsException e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @GetMapping(path = "/predetermined", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-//    @ApiResponses({
-//            @ApiResponse(code = 200, message = "generated correctly"),
-//            @ApiResponse(code = 400, message = "Error while generating"),
-//    })
-//    public ResponseEntity<byte[]> generatePredeterminedCases(@RequestParam Integer quantity, @RequestParam Integer type) {
-//        try {
-//            Pair<List<BufferedImage>, File> listFilePair = generatorService.generatePredeterminedCases(quantity, type);
-//            ByteArrayOutputStream zipToReturn = fileService.zipImages(listFilePair);
-//            if (zipToReturn != null) {
-//                return new ResponseEntity<>(zipToReturn.toByteArray(), HttpStatus.OK);
-//            } else {
-//                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        } catch (ImageOutOfBoundsException e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        } catch (IndexOutOfBoundsException e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//    }
+
+    @GetMapping(path = "/wrong", produces = "application/zip")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "generated correctly"),
+            @ApiResponse(code = 400, message = "Error while generating"),
+    })
+    public ResponseEntity<byte[]> generateWrongCases(@RequestParam Integer actors, @RequestParam Integer arrows,
+            @RequestParam Integer boxes, @RequestParam Integer quantity) {
+        try {
+            Pair<List<BufferedImage>, File> listFilePair = generatorService.generateWrongCases(actors, arrows, boxes, quantity);
+            if (listFilePair == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            int count = generatorService.getImageCount();
+            int totalSize = listFilePair.getKey().size();
+            List <File> filesToZip = new ArrayList<>();
+            for (int i = 0; i < totalSize; i++) {
+                int numberName = count - totalSize + i;
+                File outputfile = new File("image" + numberName + ".png");
+                ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
+                filesToZip.add(outputfile);
+            }
+            filesToZip.add(listFilePair.getValue());
+            byte[] bytes = fileService.zipArrayFiles(filesToZip);
+            for (File fileToDelete : filesToZip) {
+                fileToDelete.delete();
+            }
+            if (bytes != null) {
+                return new ResponseEntity<>(bytes, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (ImageOutOfBoundsException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @GetMapping(path = "/random", produces = "application/zip")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "generated correctly"),
+            @ApiResponse(code = 400, message = "Error while generating"),
+    })
+    public ResponseEntity<byte[]> generateRandomCases(@RequestParam Integer quantity) {
+        try {
+            Pair<List<BufferedImage>, File> listFilePair = generatorService.generateRandomCases(quantity);
+            if (listFilePair == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            int count = generatorService.getImageCount();
+            int totalSize = listFilePair.getKey().size();
+            List <File> filesToZip = new ArrayList<>();
+            for (int i = 0; i < totalSize; i++) {
+                int numberName = count - totalSize + i;
+                File outputfile = new File("image" + numberName + ".png");
+                ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
+                filesToZip.add(outputfile);
+            }
+            filesToZip.add(listFilePair.getValue());
+            byte[] bytes = fileService.zipArrayFiles(filesToZip);
+            for (File fileToDelete : filesToZip) {
+                fileToDelete.delete();
+            }
+            if (bytes != null) {
+                return new ResponseEntity<>(bytes, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (ImageOutOfBoundsException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(path = "/predetermined", produces = "application/zip")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "generated correctly"),
+            @ApiResponse(code = 400, message = "Error while generating"),
+    })
+    public ResponseEntity<byte[]> generatePredeterminedCases(@RequestParam Integer quantity, @RequestParam Integer type) {
+        try {
+            Pair<List<BufferedImage>, File> listFilePair = generatorService.generatePredeterminedCases(quantity, type);
+            if (listFilePair == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            int count = generatorService.getImageCount();
+            int totalSize = listFilePair.getKey().size();
+            List <File> filesToZip = new ArrayList<>();
+            for (int i = 0; i < totalSize; i++) {
+                int numberName = count - totalSize + i;
+                File outputfile = new File("image" + numberName + ".png");
+                ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
+                filesToZip.add(outputfile);
+            }
+            filesToZip.add(listFilePair.getValue());
+            byte[] bytes = fileService.zipArrayFiles(filesToZip);
+            for (File fileToDelete : filesToZip) {
+                fileToDelete.delete();
+            }
+            if (bytes != null) {
+                return new ResponseEntity<>(bytes, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (ImageOutOfBoundsException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
