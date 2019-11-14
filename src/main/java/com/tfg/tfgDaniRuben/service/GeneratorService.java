@@ -1,6 +1,5 @@
 package com.tfg.tfgDaniRuben.service;
 
-import com.tfg.tfgDaniRuben.Exceptions.CreateImageErrorException;
 import com.tfg.tfgDaniRuben.Exceptions.ImageOutOfBoundsException;
 import javafx.util.Pair;
 import lombok.Data;
@@ -138,7 +137,7 @@ public class GeneratorService {
                 }
                 g2d.dispose();
                 imagesToReturn.add(background);
-                labeledService.registerImageForLabeled("image" + imageCount + ".png", true, labeled);
+                labeledService.registerImageForLabeled("image" + imageCount + ".png", false, labeled);
             }
             toReturn = new Pair<>(imagesToReturn, labeled);
             return toReturn;
@@ -227,18 +226,7 @@ public class GeneratorService {
     }
 
     private boolean goodValidation(Integer actors, Integer arrows, Integer boxes) {
-        try {
-            assert (actors > 0);
-            assert (arrows > 0);
-            assert (boxes > 0);
-            assert (actors <= arrows);
-            assert (boxes <= arrows);
-            assert (arrows <= actors * boxes);
-        } catch (AssertionError e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+        return actors > 0 && arrows > 0 && boxes > 0 && actors <= arrows && boxes <= arrows && arrows <= actors * boxes;
     }
 
 
