@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -205,10 +206,11 @@ public class GeneratorController {
             Pair<List<BufferedImage>, File> listFilePair;
             List<BufferedImage> key = new ArrayList<>();
             File toMerge = new File("etiquetado.txt");
+            toMerge.createNewFile();
 
             listFilePair = generatorService.generatePredeterminedCases(x, 1);
-            FileCopyUtils.copy(toMerge, listFilePair.getValue());
-            for (int i = 2; i < 6; i++) {
+            FileCopyUtils.copy(listFilePair.getValue(), toMerge);
+            for (int i = 2; i < 7; i++) {
                 quantity = quantity - x;
                 listFilePair = generatorService.generatePredeterminedCases(x, i);
                 mergeFilesIntoFirstElement(Arrays.asList(toMerge, listFilePair.getValue()));
@@ -217,7 +219,6 @@ public class GeneratorController {
                 }
             }
 
-            listFilePair = generatorService.generatePredeterminedCases(quantity, 6);
             for (BufferedImage image : listFilePair.getKey()) {
                 key.add(image);
             }
@@ -226,12 +227,12 @@ public class GeneratorController {
                 return ResponseEntity.badRequest().build();
             }
             int count = generatorService.getImageCount();
-            int totalSize = listFilePair.getKey().size();
+            int totalSize = key.size();
             List <File> filesToZip = new ArrayList<>();
             for (int i = 0; i < totalSize; i++) {
                 int numberName = count - totalSize + i;
                 File outputfile = new File( numberName + ".png");
-                ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
+                ImageIO.write(key.get(i), "png", outputfile);
                 filesToZip.add(outputfile);
             }
             int i = 0;
