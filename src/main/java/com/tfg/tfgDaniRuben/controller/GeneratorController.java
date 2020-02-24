@@ -191,4 +191,64 @@ public class GeneratorController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping(path = "/predetermined/random", produces = "application/zip")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "generated correctly"),
+            @ApiResponse(code = 400, message = "Error while generating"),
+    })
+    public ResponseEntity<byte[]> generatePredeterminedCasesRandom(@RequestParam Integer quantity) {
+        try {
+            //TODO controlar cuando piden menos de 6 imagenes
+            int x = quantity/6;
+            Pair<List<BufferedImage>, File> listFilePair;
+            List<BufferedImage> key = new ArrayList<>();
+            List <File> labeleds = new ArrayList<>();
+            for (int i = 1; i < 6; i++) {
+                quantity = quantity - x;
+                listFilePair = generatorService.generatePredeterminedCases(x, i);
+                for ( BufferedImage image : listFilePair.getKey()) {
+                    key.add(image);
+                }
+                labeleds.add(listFilePair.getValue());
+            }
+
+            listFilePair = generatorService.generatePredeterminedCases(quantity, 6);
+            for (BufferedImage image : listFilePair.getKey()) {
+                key.add(image);
+            }
+
+            Pair<List<BufferedImage>, List<File>> listListPair = new Pair<>(key, labeleds);
+            if (listListPair == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            int count = generatorService.getImageCount();
+            int totalSize = listListPair.getKey().size();
+            List <File> filesToZip = new ArrayList<>();
+            for (int i = 0; i < totalSize; i++) {
+                int numberName = count - totalSize + i;
+                File outputfile = new File( numberName + ".png");
+                ImageIO.write(listListPair.getKey().get(i), "png", outputfile);
+                filesToZip.add(outputfile);
+            }
+            for (File file:listListPair.getValue()) {
+                filesToZip.add(file);
+            }
+            byte[] bytes = fileService.zipArrayFiles(filesToZip);
+            for (File fileToDelete : filesToZip) {
+                fileToDelete.delete();
+            }
+            if (bytes != null) {
+                return new ResponseEntity<>(bytes, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (ImageOutOfBoundsException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
