@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -202,14 +204,17 @@ public class GeneratorController {
             int x = quantity/6;
             Pair<List<BufferedImage>, File> listFilePair;
             List<BufferedImage> key = new ArrayList<>();
-            List <File> labeleds = new ArrayList<>();
-            for (int i = 1; i < 6; i++) {
+            File toMerge = new File("etiquetado.txt");
+
+            listFilePair = generatorService.generatePredeterminedCases(x, 1);
+            FileCopyUtils.copy(toMerge, listFilePair.getValue());
+            for (int i = 2; i < 6; i++) {
                 quantity = quantity - x;
                 listFilePair = generatorService.generatePredeterminedCases(x, i);
+                mergeFilesIntoFirstElement(Arrays.asList(toMerge, listFilePair.getValue()));
                 for ( BufferedImage image : listFilePair.getKey()) {
                     key.add(image);
                 }
-                labeleds.add(listFilePair.getValue());
             }
 
             listFilePair = generatorService.generatePredeterminedCases(quantity, 6);
@@ -217,22 +222,20 @@ public class GeneratorController {
                 key.add(image);
             }
 
-            Pair<List<BufferedImage>, List<File>> listListPair = new Pair<>(key, labeleds);
-            if (listListPair == null) {
+            if (listFilePair == null) {
                 return ResponseEntity.badRequest().build();
             }
             int count = generatorService.getImageCount();
-            int totalSize = listListPair.getKey().size();
+            int totalSize = listFilePair.getKey().size();
             List <File> filesToZip = new ArrayList<>();
             for (int i = 0; i < totalSize; i++) {
                 int numberName = count - totalSize + i;
                 File outputfile = new File( numberName + ".png");
-                ImageIO.write(listListPair.getKey().get(i), "png", outputfile);
+                ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
                 filesToZip.add(outputfile);
             }
             int i = 0;
-            mergeFilesIntoFirstElement(listListPair.getValue());
-            filesToZip.add(listListPair.getValue().get(0));
+            filesToZip.add(toMerge);
             byte[] bytes = fileService.zipArrayFiles(filesToZip);
             for (File fileToDelete : filesToZip) {
                 fileToDelete.delete();
