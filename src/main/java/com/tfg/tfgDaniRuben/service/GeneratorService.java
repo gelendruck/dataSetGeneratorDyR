@@ -87,7 +87,7 @@ public class GeneratorService {
                 }
                 g2d.dispose();
                 imagesToReturn.add(background);
-                labeledService.registerImageForLabeled("image" + imageCount + ".png", true, labeled);
+                labeledService.registerImageForLabeled(imageCount + ".png", false, labeled);
             }
             toReturn = new Pair<>(imagesToReturn, labeled);
             return toReturn;
@@ -137,7 +137,7 @@ public class GeneratorService {
                 }
                 g2d.dispose();
                 imagesToReturn.add(background);
-                labeledService.registerImageForLabeled("image" + imageCount + ".png", false, labeled);
+                labeledService.registerImageForLabeled(imageCount + ".png", false, labeled);
             }
             toReturn = new Pair<>(imagesToReturn, labeled);
             return toReturn;
@@ -192,7 +192,7 @@ public class GeneratorService {
             }
             g2d.dispose();
             imagesToReturn.add(background);
-            labeledService.registerImageForLabeled("image" + imageCount + ".png", goodValidation(actors, arrows, boxes), labeled);
+            labeledService.registerImageForLabeled(imageCount + ".png", goodValidation(actors, arrows, boxes), labeled);
         }
         toReturn = new Pair<>(imagesToReturn, labeled);
         return toReturn;
@@ -219,7 +219,8 @@ public class GeneratorService {
             Graphics2D g2d = background.createGraphics();
             g2d.drawImage(scenarioTrans.get(), 0, 0, null);
             g2d.dispose();
-            labeledService.registerImageForLabeled("image" + imageCount + ".png", true, labeled);
+            imagesToReturn.add(background);
+            labeledService.registerImageForLabeled(imageCount + ".png", true, labeled);
         }
         toReturn = new Pair<>(imagesToReturn, labeled);
         return toReturn;

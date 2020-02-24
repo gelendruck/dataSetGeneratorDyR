@@ -50,7 +50,7 @@ public class GeneratorController {
             List <File> filesToZip = new ArrayList<>();
             for (int i = 0; i < totalSize; i++) {
                 int numberName = count - totalSize + i;
-                File outputfile = new File("image" + numberName + ".png");
+                File outputfile = new File(numberName + ".png");
                 ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
                 filesToZip.add(outputfile);
             }
@@ -90,7 +90,7 @@ public class GeneratorController {
             List <File> filesToZip = new ArrayList<>();
             for (int i = 0; i < totalSize; i++) {
                 int numberName = count - totalSize + i;
-                File outputfile = new File("image" + numberName + ".png");
+                File outputfile = new File(numberName + ".png");
                 ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
                 filesToZip.add(outputfile);
             }
@@ -130,7 +130,7 @@ public class GeneratorController {
             List <File> filesToZip = new ArrayList<>();
             for (int i = 0; i < totalSize; i++) {
                 int numberName = count - totalSize + i;
-                File outputfile = new File("image" + numberName + ".png");
+                File outputfile = new File(numberName + ".png");
                 ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
                 filesToZip.add(outputfile);
             }
@@ -169,7 +169,7 @@ public class GeneratorController {
             List <File> filesToZip = new ArrayList<>();
             for (int i = 0; i < totalSize; i++) {
                 int numberName = count - totalSize + i;
-                File outputfile = new File("image" + numberName + ".png");
+                File outputfile = new File( numberName + ".png");
                 ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
                 filesToZip.add(outputfile);
             }
