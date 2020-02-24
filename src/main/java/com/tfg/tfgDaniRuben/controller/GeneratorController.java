@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -231,9 +230,9 @@ public class GeneratorController {
                 ImageIO.write(listListPair.getKey().get(i), "png", outputfile);
                 filesToZip.add(outputfile);
             }
-            for (File file:listListPair.getValue()) {
-                filesToZip.add(file);
-            }
+            int i = 0;
+            mergeFilesIntoFirstElement(listListPair.getValue());
+            filesToZip.add(listListPair.getValue().get(0));
             byte[] bytes = fileService.zipArrayFiles(filesToZip);
             for (File fileToDelete : filesToZip) {
                 fileToDelete.delete();
@@ -250,5 +249,43 @@ public class GeneratorController {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public void mergeFilesIntoFirstElement(List<File> files) {
+
+        FileWriter fstream = null;
+        BufferedWriter out = null;
+        try {
+            fstream = new FileWriter(files.get(0), true);
+            out = new BufferedWriter(fstream);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+        for (int i = 1; i < files.size(); i++) {
+            System.out.println("merging: " + files.get(i).getName());
+            FileInputStream fis;
+            try {
+                fis = new FileInputStream(files.get(i));
+                BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+
+                String aLine;
+                while ((aLine = in.readLine()) != null) {
+                    out.write(aLine);
+                    out.newLine();
+                }
+
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
