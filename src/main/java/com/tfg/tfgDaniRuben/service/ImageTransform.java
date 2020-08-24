@@ -3,11 +3,6 @@ package com.tfg.tfgDaniRuben.service;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
-/**
- *
- * @author Juan Díez-Yanguas Barber
- * @author Jdiezfoto - http://jdiezfoto.es/
- */
 public class ImageTransform {
 
     private AffineTransform at;

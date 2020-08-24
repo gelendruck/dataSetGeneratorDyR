@@ -31,7 +31,7 @@ public class TransformationService {
         return Toolkit.getDefaultToolkit().createImage(ip);
     }
 
-    public BufferedImage drawImage (int width, int height, Image img) {
+    public BufferedImage drawImage(int width, int height, Image img) {
 
         BufferedImage imgDestination = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2dImg = imgDestination.createGraphics();
@@ -40,9 +40,9 @@ public class TransformationService {
         return imgDestination;
     }
 
-    public BufferedImage traslation (BufferedImage origin, int backgroundWidth, int backgroundHeight, int positionX, int positionY) throws ImageOutOfBoundsException {
+    public BufferedImage traslation(BufferedImage origin, int backgroundWidth, int backgroundHeight, int positionX, int positionY) throws ImageOutOfBoundsException {
 
-        if(validatePosition(backgroundWidth, backgroundHeight, positionX, positionY, origin.getWidth(), origin.getHeight())) {
+        if (validatePosition(backgroundWidth, backgroundHeight, positionX, positionY, origin.getWidth(), origin.getHeight())) {
 
             BufferedImage imageToReturn = new BufferedImage(backgroundWidth, backgroundHeight, BufferedImage.TYPE_INT_ARGB);
             BufferedImage originTrans = drawImage(origin.getWidth(), origin.getHeight(),
@@ -60,7 +60,6 @@ public class TransformationService {
         }
     }
 
-
     public BufferedImage rotation(BufferedImage origin, double grados) {
         BufferedImage imgDestination;
         ImageTransform imTransform = new ImageTransform(origin.getHeight(), origin.getWidth());
@@ -71,20 +70,7 @@ public class TransformationService {
         return ato.filter(origin, imgDestination);
     }
 
-    //TODO hacer que esta mierda funcione
-    public static BufferedImage resize(BufferedImage img, double randomResize) {
-
-        int height = (int) (img.getHeight() * randomResize);
-        int width = (int) (img.getWidth() * randomResize);
-
-        // scales the input image to the output image
-        Graphics2D g2d = img.createGraphics();
-        g2d.drawImage(img, 10, 10, width, height, null);
-        g2d.dispose();
-        return img;
-    }
-
-    private boolean validatePosition(int backgroundX, int backgroundY, int positionX, int positionY, int width, int height){
+    private boolean validatePosition(int backgroundX, int backgroundY, int positionX, int positionY, int width, int height) {
         if (positionX + width > backgroundX) {
             return false;
         }

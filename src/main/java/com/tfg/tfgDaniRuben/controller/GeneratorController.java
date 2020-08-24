@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,134 +22,60 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/generate")
 @Slf4j
 public class GeneratorController {
 
+    public static final int N_PREDETERMINED_CASES = 16;
+    public static final String ETIQUETADO_TXT = "etiquetado.txt";
     @Autowired
     private GeneratorService generatorService;
 
     @Autowired
     private FileService fileService;
 
-    @GetMapping(path = "/good", produces = "application/zip")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Generated correctly"),
-            @ApiResponse(code = 400, message = "Error while generating"),
-    })
-    public ResponseEntity<byte[]> generateGoodCases(@RequestParam Integer actors, @RequestParam Integer arrows,
-            @RequestParam Integer boxes, @RequestParam Integer quantity) {
-        try {
-            Pair<List<BufferedImage>, File> listFilePair = generatorService.generateGoodCases(actors, arrows, boxes, quantity);
-            if (listFilePair == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            int count = generatorService.getImageCount();
-            int totalSize = listFilePair.getKey().size();
-            List <File> filesToZip = new ArrayList<>();
-            for (int i = 0; i < totalSize; i++) {
-                int numberName = count - totalSize + i;
-                File outputfile = new File(numberName + ".png");
-                ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
-                filesToZip.add(outputfile);
-            }
-            filesToZip.add(listFilePair.getValue());
-            byte[] bytes = fileService.zipArrayFiles(filesToZip);
-            for (File fileToDelete : filesToZip) {
-                fileToDelete.delete();
-            }
-            if (bytes != null) {
-                return new ResponseEntity<>(bytes, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (ImageOutOfBoundsException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping(path = "/wrong", produces = "application/zip")
     @ApiResponses({
             @ApiResponse(code = 200, message = "generated correctly"),
             @ApiResponse(code = 400, message = "Error while generating"),
     })
-    public ResponseEntity<byte[]> generateWrongCases(@RequestParam Integer actors, @RequestParam Integer arrows,
-            @RequestParam Integer boxes, @RequestParam Integer quantity) {
-        try {
-            Pair<List<BufferedImage>, File> listFilePair = generatorService.generateWrongCases(actors, arrows, boxes, quantity);
-            if (listFilePair == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            int count = generatorService.getImageCount();
-            int totalSize = listFilePair.getKey().size();
-            List <File> filesToZip = new ArrayList<>();
-            for (int i = 0; i < totalSize; i++) {
-                int numberName = count - totalSize + i;
-                File outputfile = new File(numberName + ".png");
-                ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
-                filesToZip.add(outputfile);
-            }
-            filesToZip.add(listFilePair.getValue());
-            byte[] bytes = fileService.zipArrayFiles(filesToZip);
-            for (File fileToDelete : filesToZip) {
-                fileToDelete.delete();
-            }
-            if (bytes != null) {
-                return new ResponseEntity<>(bytes, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (ImageOutOfBoundsException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<byte[]> generateRandomWrongCases(@RequestParam Integer quantity) throws IOException, ImageOutOfBoundsException {
+        List<File> etiquetados = new ArrayList<>();
+        List<BufferedImage> imagenes = new ArrayList<>();
+        Random random = new Random();
+        File labeled = new File(ETIQUETADO_TXT);
+        for (int i = 0; i < quantity; i++) {
+            Pair<List<BufferedImage>, File> imagen;
+            imagen = generatorService.generateWrongCases(random.nextInt(4), random.nextInt(4), random.nextInt(4), 1);
+            mergeFilesIntoFirstElement(Arrays.asList(labeled, imagen.getValue()));
+            etiquetados.add(labeled);
+            imagenes.add(imagen.getKey().get(0));
         }
 
-    }
-
-    @GetMapping(path = "/random", produces = "application/zip")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "generated correctly"),
-            @ApiResponse(code = 400, message = "Error while generating"),
-    })
-    public ResponseEntity<byte[]> generateRandomCases(@RequestParam Integer quantity) {
-        try {
-            Pair<List<BufferedImage>, File> listFilePair = generatorService.generateRandomCases(quantity);
-            if (listFilePair == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            int count = generatorService.getImageCount();
-            int totalSize = listFilePair.getKey().size();
-            List <File> filesToZip = new ArrayList<>();
-            for (int i = 0; i < totalSize; i++) {
-                int numberName = count - totalSize + i;
-                File outputfile = new File(numberName + ".png");
-                ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
-                filesToZip.add(outputfile);
-            }
-            filesToZip.add(listFilePair.getValue());
-            byte[] bytes = fileService.zipArrayFiles(filesToZip);
-            for (File fileToDelete : filesToZip) {
-                fileToDelete.delete();
-            }
-            if (bytes != null) {
-                return new ResponseEntity<>(bytes, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (ImageOutOfBoundsException e) {
-            e.printStackTrace();
+        Pair<List<BufferedImage>, File> listFilePair = new Pair<>(imagenes, labeled);
+        if (listFilePair == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        int count = generatorService.getImageCount();
+        int totalSize = listFilePair.getKey().size();
+        List<File> filesToZip = new ArrayList<>();
+        for (int i = 0; i < totalSize; i++) {
+            int numberName = count - totalSize + i;
+            File outputfile = new File(numberName + ".png");
+            ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
+            filesToZip.add(outputfile);
+        }
+        filesToZip.add(listFilePair.getValue());
+        byte[] bytes = fileService.zipArrayFiles(filesToZip);
+        for (File fileToDelete : filesToZip) {
+            fileToDelete.delete();
+        }
+        if (bytes != null) {
+            return new ResponseEntity<>(bytes, HttpStatus.OK);
+        } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -168,10 +93,10 @@ public class GeneratorController {
             }
             int count = generatorService.getImageCount();
             int totalSize = listFilePair.getKey().size();
-            List <File> filesToZip = new ArrayList<>();
+            List<File> filesToZip = new ArrayList<>();
             for (int i = 0; i < totalSize; i++) {
                 int numberName = count - totalSize + i;
-                File outputfile = new File( numberName + ".png");
+                File outputfile = new File(numberName + ".png");
                 ImageIO.write(listFilePair.getKey().get(i), "png", outputfile);
                 filesToZip.add(outputfile);
             }
@@ -201,37 +126,44 @@ public class GeneratorController {
     })
     public ResponseEntity<byte[]> generatePredeterminedCasesRandom(@RequestParam Integer quantity) {
         try {
-            //TODO controlar cuando piden menos de 6 imagenes
-            int x = quantity/6;
+            int cases = quantity > N_PREDETERMINED_CASES ? N_PREDETERMINED_CASES : quantity;
+            int x = quantity / cases;
             Pair<List<BufferedImage>, File> listFilePair;
             List<BufferedImage> key = new ArrayList<>();
-            File toMerge = new File("etiquetado.txt");
+            File toMerge = new File(ETIQUETADO_TXT);
             toMerge.createNewFile();
 
             listFilePair = generatorService.generatePredeterminedCases(x, 1);
-            FileCopyUtils.copy(listFilePair.getValue(), toMerge);
-            for (int i = 2; i < 7; i++) {
-                quantity = quantity - x;
-                listFilePair = generatorService.generatePredeterminedCases(x, i);
-                mergeFilesIntoFirstElement(Arrays.asList(toMerge, listFilePair.getValue()));
-                for ( BufferedImage image : listFilePair.getKey()) {
-                    key.add(image);
-                }
-            }
-
+            quantity = quantity - x;
             for (BufferedImage image : listFilePair.getKey()) {
                 key.add(image);
             }
-
+            FileCopyUtils.copy(listFilePair.getValue(), toMerge);
+            for (int i = 2; i <= cases; i++) {
+                if (i < cases) {
+                    listFilePair = generatorService.generatePredeterminedCases(x, i);
+                    mergeFilesIntoFirstElement(Arrays.asList(toMerge, listFilePair.getValue()));
+                    for (BufferedImage image : listFilePair.getKey()) {
+                        key.add(image);
+                    }
+                } else {
+                    listFilePair = generatorService.generatePredeterminedCases(quantity, i);
+                    mergeFilesIntoFirstElement(Arrays.asList(toMerge, listFilePair.getValue()));
+                    for (BufferedImage image : listFilePair.getKey()) {
+                        key.add(image);
+                    }
+                }
+                quantity = quantity - x;
+            }
             if (listFilePair == null) {
                 return ResponseEntity.badRequest().build();
             }
             int count = generatorService.getImageCount();
             int totalSize = key.size();
-            List <File> filesToZip = new ArrayList<>();
+            List<File> filesToZip = new ArrayList<>();
             for (int i = 0; i < totalSize; i++) {
                 int numberName = count - totalSize + i;
-                File outputfile = new File( numberName + ".png");
+                File outputfile = new File(numberName + ".png");
                 ImageIO.write(key.get(i), "png", outputfile);
                 filesToZip.add(outputfile);
             }
@@ -255,7 +187,7 @@ public class GeneratorController {
         }
     }
 
-    public void mergeFilesIntoFirstElement(List<File> files) {
+    private void mergeFilesIntoFirstElement(List<File> files) {
 
         FileWriter fstream = null;
         BufferedWriter out = null;
@@ -267,7 +199,6 @@ public class GeneratorController {
         }
 
         for (int i = 1; i < files.size(); i++) {
-            System.out.println("merging: " + files.get(i).getName());
             FileInputStream fis;
             try {
                 fis = new FileInputStream(files.get(i));
