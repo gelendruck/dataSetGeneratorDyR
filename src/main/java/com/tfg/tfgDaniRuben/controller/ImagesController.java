@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Random;
 
 @RestController
-@RequestMapping("/generate")
+@RequestMapping("/images")
 @Slf4j
-public class GeneratorController {
+public class ImagesController {
 
     public static final int N_PREDETERMINED_CASES = 16;
     public static final String ETIQUETADO_TXT = "etiquetado.txt";
