@@ -62,7 +62,7 @@ public class TransformationService {
 
     public BufferedImage rotation(BufferedImage origin, double grados) {
         BufferedImage imgDestination;
-        ImageTransform imTransform = new ImageTransform(origin.getHeight(), origin.getWidth());
+        TransformationUtils imTransform = new TransformationUtils(origin.getHeight(), origin.getWidth());
         imTransform.rotate(grados);
         imTransform.findTranslation();
         AffineTransformOp ato = new AffineTransformOp(imTransform.getTransform(), AffineTransformOp.TYPE_BILINEAR);

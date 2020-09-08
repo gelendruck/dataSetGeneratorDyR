@@ -3,14 +3,14 @@ package com.tfg.tfgDaniRuben.service;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
-public class ImageTransform {
+public class TransformationUtils {
 
     private AffineTransform at;
     private int alturaImagen;
     private int anchoImagen;
     private double grados;
 
-    public ImageTransform(int alturaImagen, int anchuraImagen) {
+    public TransformationUtils(int alturaImagen, int anchuraImagen) {
         at = new AffineTransform();
         this.alturaImagen = alturaImagen;
         this.anchoImagen = anchuraImagen;
